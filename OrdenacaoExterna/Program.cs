@@ -9,12 +9,17 @@ using System.Runtime.CompilerServices;
 
 class IntercalamentoBalanceadoMultiplosCaminhos()
 {
-    const int TAMANHO_MEMORIA = 10000;
-    const int NUM_CAMINHOS = 1000;
+    const int TAMANHO_MEMORIA = 100;
+    const int NUM_CAMINHOS = 50;
 
     static void Main(string[] args)
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
         string input = "";
+        string output = "";
+        
         const string INPUT_ARQUIVO_TESTE = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\BaseTeste\\ordExt_InputTeste.txt";
         const string OUTUPUT_ARQUIVO_TESTE = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\BaseTeste\\ordExt_OutPutTeste.txt";
         const string INPUT_ARQUIVO_REAL = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\BaseReal\\ordExt_Input.txt";
@@ -24,9 +29,16 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
         string resposta = Console.ReadLine();
 
         if (resposta == "1")
+        {
             input = INPUT_ARQUIVO_TESTE;
+            output = OUTUPUT_ARQUIVO_TESTE;
+        }
         else if (resposta == "2")
+        {
             input = INPUT_ARQUIVO_REAL;
+            output = OUTPUT_ARQUIVO_REAL;
+        }
+            
         
 
         LeitorArquivos leitorEGeradorDeArquivos = LeitorArquivos.InstanciaGlobal;
@@ -41,7 +53,10 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
                 .IntercalaBlocosDeAcordoComCaminhos(CaminhosArquivosTemporarios, NUM_CAMINHOS);
         }
 
-        RenomeiaArquivo(CaminhosArquivosTemporarios[0], OUTUPUT_ARQUIVO_TESTE);
+        RenomeiaArquivo(CaminhosArquivosTemporarios[0], output);
+
+        stopwatch.Stop();
+        Console.WriteLine($"O tempo de execução do programa foi: {stopwatch.ElapsedMilliseconds} ms.");
     }
 
     private static void RenomeiaArquivo(string alvo, string novoNome)
