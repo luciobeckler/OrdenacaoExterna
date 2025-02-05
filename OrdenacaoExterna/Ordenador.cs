@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,22 +41,85 @@ namespace OrdenacaoExterna
 
                 novosCaminhosResultantesIntercalacao.Add(arquivoResultanteIntercalacao);
             }
+
             return novosCaminhosResultantesIntercalacao;
         }
 
         private string IntercalaBlocosERetornaArquivoResultante(List<string> caminhosParaIntercalação)
         {
             string arquivoResultante = Path.GetTempFileName();
-            List<double> numerosArquivos = new List<double>();
 
-            foreach (var path in caminhosParaIntercalação)
+            // Lista de leitores para os arquivos temporários
+            var leitores = new List<StreamReader>();
+            var numeros = new List<double>();
+
+            try
             {
-                var numerosDoArquivo = leitorEGeradorDeArquivos.GeraListaNumeros(path);
-                numerosArquivos.AddRange(numerosDoArquivo);
-            }
-            numerosArquivos.Sort();
+                // Abre todos os arquivos para leitura
+                foreach (var path in caminhosParaIntercalação)
+                {
+                    var reader = new StreamReader(path);
+                    leitores.Add(reader);
+                }
 
-            arquivoResultante = escritor.EscreveNumerosNoArquivo(numerosArquivos, arquivoResultante);
+                // Lê a primeira linha de cada arquivo
+                for (int i = 0; i < leitores.Count; i++)
+                {
+                    if (!leitores[i].EndOfStream)
+                    {
+                        string line = leitores[i].ReadLine();
+                        if (double.TryParse(line, NumberStyles.Any, CultureInfo.InvariantCulture, out double numero))
+                        {
+                            numeros.Add(numero);
+                        }
+                    }
+                }
+
+                // Intercala os números e escreve no arquivo resultante
+                using (var writer = new StreamWriter(arquivoResultante))
+                {
+                    while (numeros.Count > 0)
+                    {
+                        // Encontra o menor número na lista
+                        double menorNumero = numeros.Min();
+                        int indiceMenorNumero = numeros.IndexOf(menorNumero);
+
+                        // Escreve o menor número no arquivo resultante
+                        writer.WriteLine(menorNumero.ToString(CultureInfo.InvariantCulture));
+
+                        // Lê o próximo número do arquivo correspondente
+                        if (!leitores[indiceMenorNumero].EndOfStream)
+                        {
+                            string line = leitores[indiceMenorNumero].ReadLine();
+                            if (double.TryParse(line, NumberStyles.Any, CultureInfo.InvariantCulture, out double proximoNumero))
+                            {
+                                numeros[indiceMenorNumero] = proximoNumero;
+                            }
+                            else
+                            {
+                                numeros.RemoveAt(indiceMenorNumero);
+                                leitores[indiceMenorNumero].Close();
+                                leitores.RemoveAt(indiceMenorNumero);
+                            }
+                        }
+                        else
+                        {
+                            numeros.RemoveAt(indiceMenorNumero);
+                            leitores[indiceMenorNumero].Close();
+                            leitores.RemoveAt(indiceMenorNumero);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                // Fecha todos os leitores
+                foreach (var reader in leitores)
+                {
+                    reader.Close();
+                }
+            }
+
             return arquivoResultante;
         }
     }

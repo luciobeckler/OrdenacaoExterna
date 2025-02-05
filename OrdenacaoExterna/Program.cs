@@ -10,12 +10,11 @@ using System.Runtime.CompilerServices;
 class IntercalamentoBalanceadoMultiplosCaminhos()
 {
     const int TAMANHO_MEMORIA = 100;
-    const int NUM_CAMINHOS = 50;
+    const int NUM_CAMINHOS = 10;
 
     static void Main(string[] args)
     {
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        
 
         string input = "";
         string output = "";
@@ -38,20 +37,29 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
             input = INPUT_ARQUIVO_REAL;
             output = OUTPUT_ARQUIVO_REAL;
         }
-            
-        
+
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
 
         LeitorArquivos leitorEGeradorDeArquivos = LeitorArquivos.InstanciaGlobal;
         Ordenador ordenador = Ordenador.InstanciaGlobal;
 
         List<string> CaminhosArquivosTemporarios = leitorEGeradorDeArquivos
                 .RetornaCaminhoBlocosIniciais(input, TAMANHO_MEMORIA);
+        
+        stopwatch.Stop();
+        Console.WriteLine("tempo 1: " + stopwatch.ElapsedMilliseconds);
+        stopwatch.Start();
 
         while (CaminhosArquivosTemporarios.Count > 1)
         {
             CaminhosArquivosTemporarios = ordenador
                 .IntercalaBlocosDeAcordoComCaminhos(CaminhosArquivosTemporarios, NUM_CAMINHOS);
         }
+
+        stopwatch.Stop();
+        Console.WriteLine("tempo 2: " + stopwatch.ElapsedMilliseconds);
 
         RenomeiaArquivo(CaminhosArquivosTemporarios[0], output);
 

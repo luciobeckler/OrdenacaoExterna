@@ -28,36 +28,37 @@ namespace OrdenacaoExterna
         public List<string> RetornaCaminhoBlocosIniciais(string path, int tamanho_memoria)
         {
             var caminhosArquivosTemp = new List<string>();
-            var buffer = new List<double>(tamanho_memoria);
+            var buffer = new double[tamanho_memoria];
 
             using (var reader = new StreamReader(path))
             {
                 while (!reader.EndOfStream)
                 {
-                    buffer.Clear();
+                    int count = 0;
 
-                    for (int i = 0; i < tamanho_memoria && !reader.EndOfStream; i++) 
+                    for (; count < tamanho_memoria && !reader.EndOfStream; count++)
                     {
                         string line = reader.ReadLine();
-                        double doubleNumber = double.Parse(line, CultureInfo.InvariantCulture);
-                        buffer.Add(doubleNumber);
+                        buffer[count] = double.Parse(line, CultureInfo.InvariantCulture);
                     }
 
-                    buffer.Sort();
+                    Array.Sort(buffer, 0, count);
 
                     string caminhoArquivoTemp = Path.GetTempFileName();
                     caminhosArquivosTemp.Add(caminhoArquivoTemp);
 
                     using (var writer = new StreamWriter(caminhoArquivoTemp))
                     {
-                        foreach (var num in buffer)
+                        var sb = new StringBuilder();
+                        for (int i = 0; i < count; i++)
                         {
-                            writer.WriteLine(num);
+                            sb.AppendLine(buffer[i].ToString(CultureInfo.InvariantCulture));
                         }
+                        writer.Write(sb.ToString());
                     }
                 }
             }
-            
+
             return caminhosArquivosTemp;
         }
 
