@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 class IntercalamentoBalanceadoMultiplosCaminhos()
 {
-    const int TAMANHO_MEMORIA = 100;
+    const int TAMANHO_MEMORIA = 300;
     const int NUM_CAMINHOS = 10;
 
     static void Main(string[] args)
@@ -25,7 +25,7 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
         const string INPUT_ARQUIVO_REAL = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\BaseReal\\ordExt_Input.txt";
         const string OUTPUT_ARQUIVO_REAL = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\BaseReal\\ordExt_OutPutTeste.txt"; ;
         
-        const string pastaSuporte = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\ArquivosSuporte2";
+        const string pastaSuporte = "C:\\Users\\lucio\\OneDrive\\Documentos\\Estudo\\IFMG\\ProgIV\\TP2-Ordenacao-Externa\\OrdenacaoExterna\\OrdenacaoExterna\\ArquivosSuporte";
 
         Console.WriteLine("1 - Arquivo teste");
         Console.WriteLine("2 - Arquivo real");
@@ -42,8 +42,8 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
             output = OUTPUT_ARQUIVO_REAL;
         }
 
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        Stopwatch stopWatchCriacaoBlocos = new Stopwatch();
+        stopWatchCriacaoBlocos.Start();
 
 
         LeitorArquivos leitorEGeradorDeArquivos = LeitorArquivos.InstanciaGlobal;
@@ -52,21 +52,19 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
         leitorEGeradorDeArquivos
                 .RetornaCaminhoBlocosIniciais(input, TAMANHO_MEMORIA, pastaSuporte);
         
-        stopwatch.Stop();
-        Console.WriteLine("tempo 1: " + stopwatch.ElapsedMilliseconds);
-        stopwatch.Start();
-                        
-        ordenador.IntercalaBlocos(pastaSuporte, NUM_CAMINHOS);
-        
+        stopWatchCriacaoBlocos.Stop();
+        Console.WriteLine("Tempo criação blocos iniciais: " + stopWatchCriacaoBlocos.ElapsedMilliseconds);
 
-        stopwatch.Stop();
-        Console.WriteLine("tempo 2: " + stopwatch.ElapsedMilliseconds);
+        Stopwatch stopWatchIntercalacao = new Stopwatch();                 
+        stopWatchIntercalacao.Start();
+
+        ordenador.IntercalaBlocos(pastaSuporte, NUM_CAMINHOS);
+
+        stopWatchIntercalacao.Stop();
+        Console.WriteLine("Tempo intercalação: " + stopWatchIntercalacao.ElapsedMilliseconds);
 
         
         //RenomeiaArquivo(CaminhosArquivosTemporarios[0], output);
-
-        stopwatch.Stop();
-        Console.WriteLine($"O tempo de execução do programa foi: {stopwatch.ElapsedMilliseconds} ms.");
     }
     private static void RenomeiaArquivo(string alvo, string novoNome)
     {

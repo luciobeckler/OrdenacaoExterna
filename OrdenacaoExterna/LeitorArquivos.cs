@@ -27,8 +27,6 @@ namespace OrdenacaoExterna
 
         public void RetornaCaminhoBlocosIniciais(string path, int tamanho_memoria, string pastaDestino)
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
 
             var buffer = new double[tamanho_memoria];
             int contadorArquivos = 1;
@@ -66,9 +64,6 @@ namespace OrdenacaoExterna
                     }
                 }
             }
-
-            stopwatch.Stop();
-            Console.WriteLine($"Tempo decorrido: {stopwatch.ElapsedMilliseconds} ms");
             return;
         }
 
