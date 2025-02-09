@@ -28,99 +28,91 @@ namespace OrdenacaoExterna
             }
         }
 
-        public List<string> IntercalaBlocosDeAcordoComCaminhos(List<string> caminhosArquivosTemp, int quantCaminhos)
+        public string IntercalaBlocos(string pastaSuporte, int quantCaminhos)
         {
-            var novosCaminhosResultantesIntercalacao = new List<string>();
+            int numIntercalacao = 1; // Contador para nomear os subdiretórios
 
-            for (int i = 0; i < caminhosArquivosTemp.Count; i += quantCaminhos)
+            while (true)
             {
-                var caminhosParaIntercalação = caminhosArquivosTemp
-                    .GetRange(i, Math.Min(quantCaminhos, caminhosArquivosTemp.Count - i));
+                // Obtém a lista de arquivos no diretório atual
+                string[] arquivos = Directory.GetFiles(pastaSuporte);
+                int numArquivos = arquivos.Length;
 
-                string arquivoResultanteIntercalacao = IntercalaBlocosERetornaArquivoResultante(caminhosParaIntercalação);
-
-                novosCaminhosResultantesIntercalacao.Add(arquivoResultanteIntercalacao);
-            }
-
-            return novosCaminhosResultantesIntercalacao;
-        }
-
-        private string IntercalaBlocosERetornaArquivoResultante(List<string> caminhosParaIntercalação)
-        {
-            string arquivoResultante = Path.GetTempFileName();
-
-            // Lista de leitores para os arquivos temporários
-            var leitores = new List<StreamReader>();
-            var numeros = new List<double>();
-
-            try
-            {
-                // Abre todos os arquivos para leitura
-                foreach (var path in caminhosParaIntercalação)
+                // Condição de parada: apenas um arquivo restante
+                if (numArquivos == 1)
                 {
-                    var reader = new StreamReader(path);
-                    leitores.Add(reader);
+                    return arquivos[0]; // Retorna o caminho do arquivo final
                 }
 
-                // Lê a primeira linha de cada arquivo
-                for (int i = 0; i < leitores.Count; i++)
+                // Cria um novo subdiretório para armazenar os arquivos intercalados
+                string novoSubdiretorio = Path.Combine(pastaSuporte, $"Intercalacao_{numIntercalacao}");
+                Directory.CreateDirectory(novoSubdiretorio);
+
+                // Processa os arquivos em grupos de 'quantCaminhos'
+                for (int i = 0; i < numArquivos; i += quantCaminhos)
                 {
-                    if (!leitores[i].EndOfStream)
+                    // Determina quantos arquivos serão intercalados neste grupo
+                    int quantArquivosNoGrupo = Math.Min(quantCaminhos, numArquivos - i);
+
+                    // Lista para armazenar os leitores e valores atuais de cada arquivo
+                    List<StreamReader> leitores = new List<StreamReader>();
+                    List<double> valoresAtuais = new List<double>();
+
+                    // Inicializa os leitores e valores atuais
+                    for (int j = 0; j < quantArquivosNoGrupo; j++)
                     {
-                        string line = leitores[i].ReadLine();
-                        if (double.TryParse(line, NumberStyles.Any, CultureInfo.InvariantCulture, out double numero))
-                        {
-                            numeros.Add(numero);
-                        }
+                        var leitor = new StreamReader(arquivos[i + j]);
+                        leitores.Add(leitor);
+                        valoresAtuais.Add(double.Parse(leitor.ReadLine(), CultureInfo.InvariantCulture));
                     }
-                }
 
-                // Intercala os números e escreve no arquivo resultante
-                using (var writer = new StreamWriter(arquivoResultante))
-                {
-                    while (numeros.Count > 0)
+                    // Cria o arquivo de saída para este grupo
+                    string arquivoSaida = Path.Combine(novoSubdiretorio, $"intercalado_{i / quantCaminhos + 1}.txt");
+                    using (var escritor = new StreamWriter(arquivoSaida))
                     {
-                        // Encontra o menor número na lista
-                        double menorNumero = numeros.Min();
-                        int indiceMenorNumero = numeros.IndexOf(menorNumero);
-
-                        // Escreve o menor número no arquivo resultante
-                        writer.WriteLine(menorNumero.ToString(CultureInfo.InvariantCulture));
-
-                        // Lê o próximo número do arquivo correspondente
-                        if (!leitores[indiceMenorNumero].EndOfStream)
+                        // Intercala os valores até que todos os arquivos sejam totalmente lidos
+                        while (valoresAtuais.Any(v => v != double.MaxValue))
                         {
-                            string line = leitores[indiceMenorNumero].ReadLine();
-                            if (double.TryParse(line, NumberStyles.Any, CultureInfo.InvariantCulture, out double proximoNumero))
+                            // Encontra o menor valor atual
+                            double menorValor = valoresAtuais.Min();
+                            int indiceMenor = valoresAtuais.IndexOf(menorValor);
+
+                            // Escreve o menor valor no arquivo de saída
+                            escritor.WriteLine(menorValor.ToString(CultureInfo.InvariantCulture));
+
+                            // Lê o próximo valor do arquivo correspondente
+                            if (!leitores[indiceMenor].EndOfStream)
                             {
-                                numeros[indiceMenorNumero] = proximoNumero;
+                                valoresAtuais[indiceMenor] = double.Parse(leitores[indiceMenor].ReadLine(), CultureInfo.InvariantCulture);
                             }
                             else
                             {
-                                numeros.RemoveAt(indiceMenorNumero);
-                                leitores[indiceMenorNumero].Close();
-                                leitores.RemoveAt(indiceMenorNumero);
+                                // Marca o arquivo como concluído
+                                valoresAtuais[indiceMenor] = double.MaxValue;
                             }
                         }
-                        else
-                        {
-                            numeros.RemoveAt(indiceMenorNumero);
-                            leitores[indiceMenorNumero].Close();
-                            leitores.RemoveAt(indiceMenorNumero);
-                        }
+                    }
+
+                    // Fecha os leitores
+                    foreach (var leitor in leitores)
+                    {
+                        leitor.Close();
                     }
                 }
-            }
-            finally
-            {
-                // Fecha todos os leitores
-                foreach (var reader in leitores)
-                {
-                    reader.Close();
-                }
-            }
 
-            return arquivoResultante;
+                // Atualiza a pasta de suporte para o novo subdiretório
+                pastaSuporte = novoSubdiretorio;
+                numIntercalacao++;
+            }
+        }
+
+        private int CalculaIntercalacoesNecessarias(int quantidadeBlocos, int quantCaminhos)
+        {
+            int intercalacoes = quantidadeBlocos / quantCaminhos;
+            if (quantidadeBlocos % quantCaminhos != 0)
+                intercalacoes += 1;
+
+            return intercalacoes;
         }
     }
 }

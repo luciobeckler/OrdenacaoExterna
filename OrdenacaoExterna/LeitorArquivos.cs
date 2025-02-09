@@ -25,10 +25,18 @@ namespace OrdenacaoExterna
             }
         }
 
-        public List<string> RetornaCaminhoBlocosIniciais(string path, int tamanho_memoria)
+        public void RetornaCaminhoBlocosIniciais(string path, int tamanho_memoria, string pastaDestino)
         {
-            var caminhosArquivosTemp = new List<string>();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            stopwatch.Start();
+
             var buffer = new double[tamanho_memoria];
+            int contadorArquivos = 1;
+
+            if (!Directory.Exists(pastaDestino))
+            {
+                Directory.CreateDirectory(pastaDestino);
+            }
 
             using (var reader = new StreamReader(path))
             {
@@ -44,8 +52,8 @@ namespace OrdenacaoExterna
 
                     Array.Sort(buffer, 0, count);
 
-                    string caminhoArquivoTemp = Path.GetTempFileName();
-                    caminhosArquivosTemp.Add(caminhoArquivoTemp);
+                    string caminhoArquivoTemp = Path.Combine(pastaDestino, $"{contadorArquivos}.txt");
+                    contadorArquivos++;
 
                     using (var writer = new StreamWriter(caminhoArquivoTemp))
                     {
@@ -59,8 +67,11 @@ namespace OrdenacaoExterna
                 }
             }
 
-            return caminhosArquivosTemp;
+            stopwatch.Stop();
+            Console.WriteLine($"Tempo decorrido: {stopwatch.ElapsedMilliseconds} ms");
+            return;
         }
+
 
         //!Se o arquivo for realmente MUITO grande pode vir a dar problema de falta de RAM neste método.
         public List<double> GeraListaNumeros(string path)
