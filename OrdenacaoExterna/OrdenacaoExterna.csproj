@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Folder Include="ArquivosSuporte\" />
+    <Folder Include="ArquivoSuporte\" />
   </ItemGroup>
 
 </Project>
