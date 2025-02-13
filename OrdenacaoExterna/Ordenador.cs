@@ -1,20 +1,10 @@
-﻿using OrdenacaoExterna;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 namespace OrdenacaoExterna
 {
     public class Ordenador
     {
         private static Ordenador _instance;
-        LeitorArquivos leitorEGeradorDeArquivos = LeitorArquivos.InstanciaGlobal;
-        Escritor escritor = Escritor.InstanciaGlobal;
-
 
         private Ordenador() { }
         public static Ordenador InstanciaGlobal
@@ -28,7 +18,7 @@ namespace OrdenacaoExterna
             }
         }
 
-        public string IntercalaBlocos(string pastaSuporte, int quantCaminhos)
+        public string GeraArquivoOrdenado(string pastaSuporte, int quantCaminhos)
         {
             int numIntercalacao = 1; 
 
@@ -89,15 +79,6 @@ namespace OrdenacaoExterna
                 pastaSuporte = novoSubdiretorio;
                 numIntercalacao++;
             }
-        }
-
-        private int CalculaIntercalacoesNecessarias(int quantidadeBlocos, int quantCaminhos)
-        {
-            int intercalacoes = quantidadeBlocos / quantCaminhos;
-            if (quantidadeBlocos % quantCaminhos != 0)
-                intercalacoes += 1;
-
-            return intercalacoes;
         }
     }
 }

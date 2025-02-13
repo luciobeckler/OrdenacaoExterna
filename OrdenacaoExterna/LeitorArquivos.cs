@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OrdenacaoExterna
 {
@@ -25,7 +20,7 @@ namespace OrdenacaoExterna
             }
         }
 
-        public void RetornaCaminhoBlocosIniciais(string path, int tamanho_memoria, string pastaDestino)
+        public void CriaBlocosIniciaisNaPastaSuporte(string path, int tamanho_memoria, string pastaDestino)
         {
 
             var buffer = new double[tamanho_memoria];
