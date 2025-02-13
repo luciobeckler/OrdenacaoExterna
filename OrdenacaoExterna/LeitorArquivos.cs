@@ -1,14 +1,13 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.Metrics;
+using System.Globalization;
 using System.Text;
 
 namespace OrdenacaoExterna
 {
     public class LeitorArquivos
     {
-        private static LeitorArquivos _instance;
-
+        private static LeitorArquivos? _instance;
         private LeitorArquivos() { }
-
         public static LeitorArquivos InstanciaGlobal
         {
             get
@@ -22,7 +21,6 @@ namespace OrdenacaoExterna
 
         public void CriaBlocosIniciaisNaPastaSuporte(string path, int tamanho_memoria, string pastaDestino)
         {
-
             var buffer = new double[tamanho_memoria];
             int contadorArquivos = 1;
 
@@ -36,19 +34,20 @@ namespace OrdenacaoExterna
                 while (!reader.EndOfStream)
                 {
                     int count = 0;
-
-                    for (; count < tamanho_memoria && !reader.EndOfStream; count++)
+                    while(count < tamanho_memoria && !reader.EndOfStream)
                     {
                         string line = reader.ReadLine();
                         buffer[count] = double.Parse(line, CultureInfo.InvariantCulture);
+
+                        count++;
                     }
 
                     Array.Sort(buffer, 0, count);
 
-                    string caminhoArquivoTemp = Path.Combine(pastaDestino, $"{contadorArquivos}.txt");
+                    string bloco = Path.Combine(pastaDestino, $"{contadorArquivos}.txt");
                     contadorArquivos++;
 
-                    using (var writer = new StreamWriter(caminhoArquivoTemp))
+                    using (var writer = new StreamWriter(bloco))
                     {
                         var sb = new StringBuilder();
                         for (int i = 0; i < count; i++)
@@ -61,24 +60,5 @@ namespace OrdenacaoExterna
             }
             return;
         }
-
-
-        //!Se o arquivo for realmente MUITO grande pode vir a dar problema de falta de RAM neste método.
-        public List<double> GeraListaNumeros(string path)
-        {
-            var listaNumeros = new List<double>();
-
-            var linhas = File.ReadAllLines(path);
-
-            foreach (var linha in linhas)
-            {
-                string linhaCorrigida = linha.Replace(',', '.');
-
-                listaNumeros.Add(double.Parse(linhaCorrigida, CultureInfo.InvariantCulture));
-            }
-
-            return listaNumeros;
-        }
-
     }
 }

@@ -4,8 +4,7 @@ namespace OrdenacaoExterna
 {
     public class Ordenador
     {
-        private static Ordenador _instance;
-
+        private static Ordenador? _instance;
         private Ordenador() { }
         public static Ordenador InstanciaGlobal
         {
@@ -18,7 +17,7 @@ namespace OrdenacaoExterna
             }
         }
 
-        public string GeraArquivoOrdenado(string pastaSuporte, int quantCaminhos)
+        public string GeraArquivoOrdenadoERetornaPath(string pastaSuporte, int quantCaminhos)
         {
             int numIntercalacao = 1; 
 
@@ -37,11 +36,10 @@ namespace OrdenacaoExterna
 
                 for (int i = 0; i < numArquivos; i += quantCaminhos)
                 {
-                    int quantArquivosNoGrupo = Math.Min(quantCaminhos, numArquivos - i);
-
                     List<StreamReader> leitores = new List<StreamReader>();
                     List<double> valoresAtuais = new List<double>();
-
+                    
+                    int quantArquivosNoGrupo = Math.Min(quantCaminhos, numArquivos - i);
                     for (int j = 0; j < quantArquivosNoGrupo; j++)
                     {
                         var leitor = new StreamReader(arquivos[i + j]);
@@ -69,13 +67,11 @@ namespace OrdenacaoExterna
                             }
                         }
                     }
-
                     foreach (var leitor in leitores)
                     {
                         leitor.Close();
                     }
                 }
-
                 pastaSuporte = novoSubdiretorio;
                 numIntercalacao++;
             }

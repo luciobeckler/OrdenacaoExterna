@@ -30,7 +30,7 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
         stopWatchIntercalacao.Start();
 
         Ordenador ordenador = Ordenador.InstanciaGlobal;
-        string arquivoOrdenadoPath = ordenador.GeraArquivoOrdenado(pastaSuporte, NUM_CAMINHOS);
+        string arquivoOrdenadoPath = ordenador.GeraArquivoOrdenadoERetornaPath(pastaSuporte, NUM_CAMINHOS);
 
         stopWatchIntercalacao.Stop();
         double tempoIntercalacaoMilisegundos = stopWatchCriacaoBlocos.ElapsedMilliseconds;
@@ -46,7 +46,7 @@ class IntercalamentoBalanceadoMultiplosCaminhos()
     {
         Console.WriteLine("1 - Arquivo teste");
         Console.WriteLine("2 - Arquivo real");
-        string resposta = Console.ReadLine();
+        string resposta = Console.ReadLine()!;
 
         string INPUT_ARQUIVO_TESTE = Path.Combine(diretorioAtual, "BaseTeste", "ordExt_InputTeste.txt");
         string INPUT_ARQUIVO_REAL = Path.Combine(diretorioAtual, "BaseReal", "ordExt_Input.txt");
